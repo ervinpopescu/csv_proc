@@ -1,0 +1,11 @@
+host: &host 
+  val: "localhost"
+
+xp:
+  host: *host
+  port: "8081"
+
+sys: 
+  host: *host
+  port: "8083"
+  

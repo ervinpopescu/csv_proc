@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="post_proc" doc:id="a4b5e4a2-8399-4fd0-8a28-a862eec33726" >
+		<logger level="INFO" doc:name='"POST /client request"' doc:id="8d6b40a7-10b0-483f-8de4-1ebec9b252fa" message='#["POST /client request"]'/>
+		<http:request method="POST" doc:name="POST /client" doc:id="3c738fed-bfcb-4155-a67f-7b62a0daa004" config-ref="HTTP_Request_configuration" path="/client"/>
+		<logger level="INFO" doc:name='"POST /client response"' doc:id="75100c85-6511-4ef3-8255-ba3b741dab09" message='#["POST /client response"]'/>
+	</flow>
+</mule>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="delete_proc" doc:id="2607b25d-ba16-4dc7-aee1-93a6ffed8af4" >
+		<logger level="INFO" doc:name='"DELETE /client request"' doc:id="241aadf8-9d83-4562-bff9-6d0a992dcd1a" message='#["DELETE /client request"]'/>
+		<http:request method="DELETE" doc:name="DELETE /client" doc:id="4a376141-7864-4cfe-b571-e8c27f55971c" config-ref="HTTP_Request_configuration" path="/client"/>
+		<logger level="INFO" doc:name='"DELETE /client response"' doc:id="8a1ee584-7e4e-4215-b239-943229d356ce" message='#["DELETE /client response"]'/>
+	</flow>
+</mule>

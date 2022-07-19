@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="Retrieve_procFlow" doc:id="02a84f43-f96c-4bac-a9c4-8d5b7327de7d" >
+		<logger level="INFO" doc:name='"GET /client request"' doc:id="fcd1161f-ecb6-441c-b5b8-1c5414ec25d3" message='#["GET /client request"]'/>
+		<http:request method="GET" doc:name="GET /client " doc:id="547102b2-f49e-4670-820a-7cfef615a50e" config-ref="HTTP_Request_configuration" path="/client"/>
+		<logger level="INFO" doc:name='"GET /client response"' doc:id="1a52ab50-a60f-4bcf-a3ce-5d806a69d013" message='#["GET /client response"]'/>
+	</flow>
+</mule>
