@@ -120,18 +120,18 @@ output application/json
         </error-handler>
     </flow>
     <flow name="delete:\client:csv_proc-config">
-		<logger level="INFO" doc:name="Logger" doc:id="2faa58df-c530-4989-a906-8faf2cb75734" />
+		<logger level="INFO" doc:name='"Entering delete_proc"' doc:id="2faa58df-c530-4989-a906-8faf2cb75734" message='#["Entering delete_proc"]'/>
 		<flow-ref doc:name="delete_proc" doc:id="20e566cd-8da8-43b8-b5ab-f76fad15d457" name="delete_proc"/>
-		<logger level="INFO" doc:name="Logger" doc:id="182cd68a-bf1c-4421-a82a-e3e5e0eab9bf" />
+		<logger level="INFO" doc:name='"Returning from delete_proc"' doc:id="182cd68a-bf1c-4421-a82a-e3e5e0eab9bf" message='#["Returning from delete_proc"]'/>
     </flow>
     <flow name="get:\client:csv_proc-config">
-		<logger level="INFO" doc:name="Logger" doc:id="1286ebdc-da46-4e24-82a7-65ad3186c124" />
+		<logger level="INFO" doc:name='"Entering get_proc"' doc:id="1286ebdc-da46-4e24-82a7-65ad3186c124" message='#["Entering get_proc"]'/>
 		<flow-ref doc:name="post_proc" doc:id="13cb53de-ecc5-4254-a4ec-139e3dfacc95" name="post_proc"/>
-		<logger level="INFO" doc:name="Logger" doc:id="4b9d3188-86c2-47ea-88a5-1dc720938c58" />
+		<logger level="INFO" doc:name='"Returning from get_proc"' doc:id="4b9d3188-86c2-47ea-88a5-1dc720938c58" message='#["Returning from get_proc"]'/>
     </flow>
     <flow name="post:\client:application\json:csv_proc-config">
-		<logger level="INFO" doc:name="Logger" doc:id="2b461814-00db-4c8b-bbb1-7cbc6bb9b42d" />
+		<logger level="INFO" doc:name='"Entering post_proc"' doc:id="2b461814-00db-4c8b-bbb1-7cbc6bb9b42d" />
 		<flow-ref doc:name="post_proc" doc:id="5cbbd714-fffe-4f4e-9bc2-d70458b38406" name="post_proc"/>
-		<logger level="INFO" doc:name="Logger" doc:id="ed5615ef-8b42-413c-b01e-60af1aaf8044" />
+		<logger level="INFO" doc:name='"Returning from post_proc"' doc:id="ed5615ef-8b42-413c-b01e-60af1aaf8044" message='#["Returning from post_proc"]'/>
     </flow>
 </mule>
