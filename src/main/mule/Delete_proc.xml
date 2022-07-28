@@ -1,19 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="delete_proc" doc:id="2607b25d-ba16-4dc7-aee1-93a6ffed8af4" >
 		<logger level="INFO" doc:name='"DELETE /client request"' doc:id="241aadf8-9d83-4562-bff9-6d0a992dcd1a" message='#["DELETE /client request"]'/>
 		<set-variable value="#[message.attributes.queryParams.client_key]" doc:name="client_key" doc:id="2a64d72b-23fa-4883-b917-4035b7cd0df4" variableName="client_key"/>
-		<http:request method="DELETE" doc:name="DELETE /client" doc:id="4a376141-7864-4cfe-b571-e8c27f55971c" config-ref="HTTP_Request_configuration" path="/client">
-			<http:query-params ><![CDATA[#[output application/java
+		<http:request method="GET" doc:name="GET /client" doc:id="f212cf91-850d-4878-9dec-3270beeb117d" config-ref="HTTP_Request_configuration" path="/api/client"/>
+		<validation:is-true doc:name="Is true" doc:id="13aa298f-bb94-40fc-a3c4-1fdde1e975c7" config-ref="Validation_Config" expression="#[payload..client_key contains vars.client_key]" message='#["Invalid client_key"]'/>
+		<choice doc:name="Choice" doc:id="94393b3e-f864-44dd-ab07-88b9e0491dbc" >
+			<when expression="#[sizeOf(payload) == 1]">
+				<ee:transform doc:name="delete the client with the specified client_key" doc:id="6faa8bd1-55bd-4174-ac63-80455642d169">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter ($.client_key != vars.client_key)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<http:request method="PUT" doc:name="DELETE /client" doc:id="4a376141-7864-4cfe-b571-e8c27f55971c" config-ref="HTTP_Request_configuration" path="/api/client">
+			<http:query-params><![CDATA[#[output application/java
 ---
 {
 	"client_key" : vars.client_key
 }]]]></http:query-params>
 		</http:request>
-		<logger level="INFO" doc:name='"DELETE /client response"' doc:id="8a1ee584-7e4e-4215-b239-943229d356ce" message='#["DELETE /client response"]'/>
+				<logger level="INFO" doc:name='"DELETE /client response"' doc:id="8a1ee584-7e4e-4215-b239-943229d356ce" message='#["DELETE /client response"]' />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="delete the client with the specified client_key" doc:id="dc0d1dc4-34e9-4516-b27d-06bc6688f558" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter ($.client_key != vars.client_key)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<http:request method="PUT" doc:name="DELETE /client" doc:id="f38e924e-42b7-45a5-a762-5f208f5d649b" config-ref="HTTP_Request_configuration" path="/api/client" >
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"client_key" : vars.client_key
+}]]]></http:query-params>
+				</http:request>
+				<logger level="INFO" doc:name='"DELETE /client response"' doc:id="0f40aff4-f757-461f-9d86-eacbe82f345f" message='#["DELETE /client response"]' />
+			</otherwise>
+		</choice>
 	</flow>
 </mule>

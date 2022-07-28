@@ -14,7 +14,7 @@ import toMilliseconds from dw::util::Timer
 import substring from dw::core::Strings
 output application/json
 ---
-payload
+(payload
     update "birth_date" with substring((toMilliseconds((
         payload.birth_date as String { format: "yyyy-MM-dd"} 
         as Date) ++ |00:00:00|) 
@@ -23,13 +23,24 @@ payload
         ((
         now() as String {format: "yyyy-MM-dd"} 
         as Date) ++ |00:00:00|) 
-        as String),0,9)]]></ee:set-payload>
+        as String),0,10)) ++ {"client_key": uuid()}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="move client_key to top of json" doc:id="6e95fd56-414a-437e-a765-24511cbb9bb0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"client_key": payload.client_key,
+	(payload filterObject !($$ contains "client_key"))
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<set-variable value="#[payload.client_key]" doc:name="client_key" doc:id="e8bd81db-6291-413d-af12-ae102f03b5f5" variableName="client_key"/>
 		<logger level="INFO" doc:name='"POST /client request"' doc:id="8d6b40a7-10b0-483f-8de4-1ebec9b252fa" message='#["POST /client request"]' />
-		<http:request method="POST" doc:name="POST /client" doc:id="3c738fed-bfcb-4155-a67f-7b62a0daa004" config-ref="HTTP_Request_configuration" path="/client"/>
-		<set-payload value="#[vars.client_key]" doc:name="Set payload to client_key" doc:id="9781605f-9334-4024-98bc-4d549cce6d4d" />
+		<http:request method="POST" doc:name="POST /client" doc:id="3c738fed-bfcb-4155-a67f-7b62a0daa004" config-ref="HTTP_Request_configuration" path="/api/client"/>
+		<set-payload value='#[{"message": "The client has been saved with the following id: " ++ vars.client_key}]' doc:name="Set payload to client_key" doc:id="9781605f-9334-4024-98bc-4d549cce6d4d" />
 		<logger level="INFO" doc:name='"POST /client response"' doc:id="75100c85-6511-4ef3-8255-ba3b741dab09" message='#["POST /client response"]'/>
 	</flow>
 </mule>

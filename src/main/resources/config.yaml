@@ -1,11 +1,8 @@
-host: &host 
-  val: "localhost"
-
-xp:
-  host: *host
-  port: "8081"
+proc:
+  host: "localhost"
+  port: "8082"
 
 sys: 
-  host: *host
+  host: "localhost"
   port: "8083"
   

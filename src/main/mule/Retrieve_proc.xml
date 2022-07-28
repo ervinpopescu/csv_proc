@@ -1,37 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<flow name="Retrieve_procFlow" doc:id="02a84f43-f96c-4bac-a9c4-8d5b7327de7d" >
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<flow name="get_proc" doc:id="02a84f43-f96c-4bac-a9c4-8d5b7327de7d" >
 		<logger level="INFO" doc:name='"GET /client request"' doc:id="fcd1161f-ecb6-441c-b5b8-1c5414ec25d3" message='#["GET /client request"]'/>
-		<http:request method="GET" doc:name="GET /client " doc:id="547102b2-f49e-4670-820a-7cfef615a50e" config-ref="HTTP_Request_configuration" path="/client"/>
-		<ee:transform doc:name="convert dates from Long to String" doc:id="9e0ab7ae-779b-4fdf-91b2-0528d2bbfd87">
+		<http:request method="GET" doc:name="GET /client " doc:id="547102b2-f49e-4670-820a-7cfef615a50e" config-ref="HTTP_Request_configuration" path="/api/client"/>
+		<ee:transform doc:name="convert dates from Long to String and add billing_address" doc:id="9e0ab7ae-779b-4fdf-91b2-0528d2bbfd87">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
-import update from dw::util::Values
 output application/json
 ---
-payload 
-	update "created_date" with (payload.created_date as Number as DateTime {format: "dd-MM-yyyy"}) 
-	update "birth_date" with (payload.birth_date as Number as DateTime {format: "dd-MM-yyyy"})]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<ee:transform doc:name="Transform Message" doc:id="efe9151b-8372-4d32-979a-01a1ddbbdc5a" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-var arr = ["billing_street","billing_city","billing_state","billing_country","billing_postal_code"]
-import * from dw::util::Values
-output application/json
----
-(payload map ({
-    ($),
-    "billing_address": $.billing_street ++ "," ++ $.billing_city ++ "," ++ $.billing_state ++ "," ++ $.billing_postal_code ++ "," ++ $.billing_country
-} filterObject !(arr contains ($$ as String))))  ]]></ee:set-payload>
+payload map (item, index) -> {
+    "client_key": item.client_key,
+    "first_name": item.first_name,
+    "last_name": item.last_name,
+    "birth_date": item.birth_date as Number as DateTime {format: "yyyy-MM-dd"},
+    "height": item.height,
+    "weight": item.weight,
+    "billing_address": item.billing_street ++ "," ++ item.billing_city ++ "," ++ item.billing_state ++ "," ++ item.billing_postal_code ++ "," ++ item.billing_country,
+    "created_date": item.created_date as Number as DateTime {format: "yyyy-MM-dd"}
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name='"GET /client response"' doc:id="1a52ab50-a60f-4bcf-a3ce-5d806a69d013" message='#["GET /client response"]'/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0cb798fb-fae1-4032-b0c2-bd0fa6c880ee" type="HTTP:NOT_FOUND" >
+				<ee:transform doc:name="No file" doc:id="7739da32-de60-435d-898b-39e0513b8d4a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{message:"No files or records found inside the folder."} ]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

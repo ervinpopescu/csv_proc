@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
-	<configuration-properties doc:name="Configuration properties" doc:id="5b688737-4a16-4940-81a7-a7ad9c7f2489" file="config.yaml" />
-	<http:listener-config name="csv_proc-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081" />
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd  http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <configuration-properties doc:name="Configuration properties" doc:id="5b688737-4a16-4940-81a7-a7ad9c7f2489" file="config.yaml" />
+    <http:listener-config name="csv_proc-httpListenerConfig">
+        <http:listener-connection host="${proc.host}" port="${proc.port}" />
     </http:listener-config>
-    <apikit:config name="csv_proc-config" api="resource::1a6f614f-782b-4f62-a5bd-e043a80391c6:csv_proc:1.0.2:raml:zip:csv_proc.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="8044a0ee-5ade-47ba-a30b-e693a1769874" >
-		<http:request-connection host="${sys.host}" port="${sys.port}" />
-	</http:request-config>
-
+    <apikit:config name="csv_proc-config" api="resource::1a6f614f-782b-4f62-a5bd-e043a80391c6:csv_proc:1.0.4:raml:zip:csv_proc.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="8044a0ee-5ade-47ba-a30b-e693a1769874" responseTimeout="300000">
+        <http:request-connection host="${sys.host}" port="${sys.port}" />
+    </http:request-config>
+    <validation:config name="Validation_Config" doc:name="Validation Config" doc:id="363f7f4a-d3ed-452f-8a7d-2f8563c51c72" />
 </mule>
