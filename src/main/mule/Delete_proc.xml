@@ -9,8 +9,27 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<flow name="delete_proc" doc:id="2607b25d-ba16-4dc7-aee1-93a6ffed8af4" >
 		<logger level="INFO" doc:name='"DELETE /client request"' doc:id="241aadf8-9d83-4562-bff9-6d0a992dcd1a" message='#["DELETE /client request"]'/>
 		<set-variable value="#[message.attributes.queryParams.client_key]" doc:name="client_key" doc:id="2a64d72b-23fa-4883-b917-4035b7cd0df4" variableName="client_key"/>
-		<http:request method="GET" doc:name="GET /client" doc:id="f212cf91-850d-4878-9dec-3270beeb117d" config-ref="HTTP_Request_configuration" path="/api/client"/>
-		<validation:is-true doc:name="Is true" doc:id="13aa298f-bb94-40fc-a3c4-1fdde1e975c7" config-ref="Validation_Config" expression="#[payload..client_key contains vars.client_key]" message='#["Invalid client_key"]'/>
+		<try doc:name="Try" doc:id="0dea61b2-1205-44df-97b9-180a5ebc286f" >
+			<http:request method="GET" doc:name="GET /client" doc:id="f212cf91-850d-4878-9dec-3270beeb117d" config-ref="HTTP_Request_configuration" path="/api/client" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2963a531-db1e-4b52-a517-4b07581ad756" type="HTTP:NOT_FOUND">
+					<ee:transform doc:name="No file" doc:id="f755a972-92db-4a9e-b27d-20342a6c537d" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "No files or records found inside the folder."
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<validation:is-true doc:name="Is true" doc:id="13aa298f-bb94-40fc-a3c4-1fdde1e975c7" config-ref="Validation_Config" expression="#[payload..client_key contains vars.client_key]"/>
 		<choice doc:name="Choice" doc:id="94393b3e-f864-44dd-ab07-88b9e0491dbc" >
 			<when expression="#[sizeOf(payload) == 1]">
 				<ee:transform doc:name="delete the client with the specified client_key" doc:id="6faa8bd1-55bd-4174-ac63-80455642d169">
@@ -49,5 +68,22 @@ payload filter ($.client_key != vars.client_key)]]></ee:set-payload>
 				<logger level="INFO" doc:name='"DELETE /client response"' doc:id="0f40aff4-f757-461f-9d86-eacbe82f345f" message='#["DELETE /client response"]' />
 			</otherwise>
 		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e226ab4e-6da9-4e4d-bbab-b557c03df264" type="VALIDATION:INVALID_BOOLEAN">
+				<ee:transform doc:name="Invalid client_key" doc:id="1d5fd9c6-bb46-4a57-8433-b18df35ceeac" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	message: "Invalid client_key"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

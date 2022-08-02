@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="post_proc" doc:id="a4b5e4a2-8399-4fd0-8a28-a862eec33726" >
+		<set-variable value="#[payload]" doc:name="client" doc:id="58d4f840-4bf7-4c45-8152-2ae7aafe03fa" variableName="client"/>
+		<validation:all doc:name="All" doc:id="ae08f8a2-a74b-460d-9b92-f8f4456663ac" >
+			<validation:is-false doc:name="Is false" doc:id="b0a66b16-fa2f-4869-980b-e74358b08fe3" config-ref="Validation_Config" expression="#[isEmpty(payload.first_name)]"/>
+			<validation:is-false doc:name="Is false" doc:id="e4f41962-1058-4bbc-9652-0d3b3b9ff53b" config-ref="Validation_Config" expression="#[isEmpty(payload.last_name)]"/>
+			<validation:is-false doc:name="Is false" doc:id="522adf6e-a50c-4b1d-bf70-edf302e703eb" config-ref="Validation_Config" expression="#[isEmpty(payload.birth_date)]"/>
+		</validation:all>
+		<set-payload value="#[vars.client]" doc:name="Set Payload" doc:id="9658a1e1-4a51-4e7b-a717-65d4d8932998" />
 		<ee:transform doc:name="client_key and dates" doc:id="83bb1680-29f3-4308-b339-8d5a0651bdb7">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -40,7 +48,24 @@ output application/json
 		<set-variable value="#[payload.client_key]" doc:name="client_key" doc:id="e8bd81db-6291-413d-af12-ae102f03b5f5" variableName="client_key"/>
 		<logger level="INFO" doc:name='"POST /client request"' doc:id="8d6b40a7-10b0-483f-8de4-1ebec9b252fa" message='#["POST /client request"]' />
 		<http:request method="POST" doc:name="POST /client" doc:id="3c738fed-bfcb-4155-a67f-7b62a0daa004" config-ref="HTTP_Request_configuration" path="/api/client"/>
-		<set-payload value='#[{"message": "The client has been saved with the following id: " ++ vars.client_key}]' doc:name="Set payload to client_key" doc:id="9781605f-9334-4024-98bc-4d549cce6d4d" />
+		<set-payload value='#[{"client_key": vars.client_key}]' doc:name="Set payload to client_key" doc:id="9781605f-9334-4024-98bc-4d549cce6d4d" />
 		<logger level="INFO" doc:name='"POST /client response"' doc:id="75100c85-6511-4ef3-8255-ba3b741dab09" message='#["POST /client response"]'/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5f7dc65a-4daa-41fc-977a-e70ecdfc9eda" type="VALIDATION:MULTIPLE" >
+				<ee:transform doc:name="Bad request" doc:id="31bf3aeb-5919-4294-8408-13fb458285ac" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Bad request"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

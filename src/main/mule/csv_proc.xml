@@ -123,6 +123,38 @@ output application/json
         <logger level="INFO" doc:name="&quot;Entering delete_proc&quot;" doc:id="2faa58df-c530-4989-a906-8faf2cb75734" message="#[&quot;Entering delete_proc&quot;]" />
         <flow-ref doc:name="delete_proc" doc:id="20e566cd-8da8-43b8-b5ab-f76fad15d457" name="delete_proc" />
         <logger level="INFO" doc:name="&quot;Returning from delete_proc&quot;" doc:id="182cd68a-bf1c-4421-a82a-e3e5e0eab9bf" message="#[&quot;Returning from delete_proc&quot;]" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="94f2c0a5-122a-4c25-bd11-58f0fd641314" type="VALIDATION:INVALID_BOOLEAN" >
+				<ee:transform doc:name="Invalid client_key" doc:id="1db7bd71-dcf1-4a99-8140-38bb6f74ad63" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	message: "Invalid client_key"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fbae9ff9-6d1b-4635-9372-289ecfbf0027" type="HTTP:NOT_FOUND" >
+				<ee:transform doc:name="No file" doc:id="1fe1b6ac-33f7-4bd6-a5da-56bdf634262f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "No files or records found inside the folder."
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
     </flow>
     <flow name="get:\client:csv_proc-config">
         <logger level="INFO" doc:name="&quot;Entering get_proc&quot;" doc:id="1286ebdc-da46-4e24-82a7-65ad3186c124" message="#[&quot;Entering get_proc&quot;]" />
@@ -148,5 +180,22 @@ output application/json
         <logger level="INFO" doc:name="&quot;Entering post_proc&quot;" doc:id="2b461814-00db-4c8b-bbb1-7cbc6bb9b42d" />
         <flow-ref doc:name="post_proc" doc:id="5cbbd714-fffe-4f4e-9bc2-d70458b38406" name="post_proc" />
         <logger level="INFO" doc:name="&quot;Returning from post_proc&quot;" doc:id="ed5615ef-8b42-413c-b01e-60af1aaf8044" message="#[&quot;Returning from post_proc&quot;]" />
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f9c8c831-0e85-453a-b60d-035361da4334" type="VALIDATION:MULTIPLE">
+				<ee:transform doc:name="Bad request" doc:id="e5c0883e-d8d0-4aa3-b9b5-cebaf8945758">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Bad request"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
     </flow>
 </mule>
